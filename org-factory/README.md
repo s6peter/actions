@@ -33,7 +33,17 @@ To run:
 3. Actions tab → "Create 20 HCP orgs" → Run workflow → `apply=true`
 4. Download `org-factory-state` artifact after apply and store it safely
 
-## 4. After bootstrap
+## 4. Wiring team leads (membership + owners + alerts)
+Orgs with `lead_email` set get, in the same apply:
+1. `tfe_organization_membership` — invites the lead by email (the org `email` alone never does this; it is contact/billing mail only, ideally a team DL).
+2. `tfe_team_members` on the pre-existing `owners` team — lead can then manage users/teams in their org.
+3. An `admin` workspace + `tfe_notification_configuration` (`lead-run-alerts`, email on `run:needs_attention` / `run:errored`) — notification configs attach to workspaces, not orgs, hence the workspace.
+
+Two-pass caveat: the owners wiring needs the lead's HCP username, known once they accept the invite. Existing HCP users resolve immediately; brand-new users stay pending — they accept the email invite, then re-run apply to complete owners + alerts.
+
+Orgs without `lead_email` are org-only (no invites, no workspace).
+
+## 5. After bootstrap
 Point future automation at org #1 (e.g. an admin workspace) instead of
 re-running this. This factory is one-shot; day-2 org management belongs
 in that admin workspace with a remote backend.

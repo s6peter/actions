@@ -5,10 +5,11 @@ variable "tfe_hostname" {
 }
 
 variable "organizations" {
-  description = "Map of 20 orgs to create. Key = terraform key, value = org name + admin email."
+  description = "Map of 20 orgs to create. email = org contact (billing/compliance mail, ideally a team DL). lead_email = team lead to invite as owner + notify on failed runs (optional per org)."
   type = map(object({
-    name  = string
-    email = string
+    name       = string
+    email      = string
+    lead_email = optional(string)
   }))
 
   validation {
