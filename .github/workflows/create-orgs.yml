@@ -33,6 +33,9 @@ jobs:
         run: terraform fmt -check -diff
 
       - name: Terraform init
+        # cloud backend reads/writes state in HCP, so init authenticates too.
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
         run: terraform init -input=false
 
       - name: Terraform validate

@@ -12,7 +12,7 @@ variable "organizations" {
   }))
 
   validation {
-    condition     = length(var.organizations) == 20
-    error_message = "This example expects exactly 20 organizations."
+    condition     = length(var.organizations) >= 1
+    error_message = "Define at least one organization. Add more (org21, ...) to grow the factory."
   }
 }
