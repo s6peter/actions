@@ -8,10 +8,16 @@ terraform {
     }
   }
 
-  # Bootstrap note: NO cloud{} / remote backend here on purpose.
-  # You have no parent org yet, so state stays local for the first run.
-  # Actions uploads terraform.tfstate as a workflow artifact.
-  # After org #1 exists, move this state into an admin workspace if you want.
+  # Phase 2: state lives in HCP. Every run (laptop or Actions) reads/writes
+  # the same copy, so adding org21 plans as "1 to add" instead of recreating.
+  # Workspace `org-factory` in org `BankAZ-landing` must exist first (created
+  # once in the UI, CLI-driven workflow, execution mode LOCAL).
+  cloud {
+    organization = "BankAZ-landing"
+    workspaces {
+      name = "org-factory"
+    }
+  }
 }
 
 provider "tfe" {

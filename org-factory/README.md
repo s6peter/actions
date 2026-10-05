@@ -33,7 +33,23 @@ To run:
 3. Actions tab → "Create 20 HCP orgs" → Run workflow → `apply=true`
 4. Download `org-factory-state` artifact after apply and store it safely
 
-## 4. After bootstrap
+## 4. One-time state migration (do this once, locally)
+The workspace `org-factory` in org `BankAZ-landing` must be CLI-driven with
+execution mode **Local** (Settings → General → Execution mode). Then:
+```bash
+cd org-factory
+# 1. download the terraform.tfstate artifact from your successful apply run
+#    and place it here as ./terraform.tfstate (same dir as main.tf)
+# 2. point the config at the workspace (already in versions.tf: cloud{} block)
+read -r -s -p "User API token: " TFE_TOKEN; export TFE_TOKEN; printf '\n'
+terraform init -migrate-state   # answer yes: local state -> HCP workspace
+terraform plan                  # expect "No changes" (proves state attached)
+rm -f terraform.tfstate terraform.tfstate.backup  # local copy no longer needed
+```
+From now on every Actions run shares that state: adding `org21` to tfvars
+plans as `Plan: 1 to add`. The state artifact upload stays as a backup only.
+
+## 5. After bootstrap
 Point future automation at org #1 (e.g. an admin workspace) instead of
 re-running this. This factory is one-shot; day-2 org management belongs
 in that admin workspace with a remote backend.
