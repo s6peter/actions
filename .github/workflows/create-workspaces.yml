@@ -1,0 +1,75 @@
+name: Create workspaces for 20 orgs
+
+on:
+  push:
+    branches: [main]
+    paths: ["workspace-factory/**", ".github/workflows/create-workspaces.yml"]
+  pull_request:
+    paths: ["workspace-factory/**", ".github/workflows/create-workspaces.yml"]
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Set true to actually create teams/workspaces (default is plan-only)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  workspaces:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workspace-factory
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -diff
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      # terraform.tfvars is gitignored: secret wins, example fallback otherwise.
+      # NOTE: secrets.* cannot be used in `if:` — read it via env instead.
+      - name: Provide tfvars (secret or example fallback)
+        env:
+          WORKSPACE_TFVARS: ${{ secrets.WORKSPACE_TFVARS }}
+        run: |
+          if [ -n "$WORKSPACE_TFVARS" ]; then
+            printf '%s' "$WORKSPACE_TFVARS" > terraform.tfvars
+            echo "using WORKSPACE_TFVARS secret"
+          else
+            cp terraform.tfvars.example terraform.tfvars
+            echo "using terraform.tfvars.example fallback"
+          fi
+
+      - name: Terraform plan
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply (manual gate)
+        if: ${{ github.event.inputs.apply == 'true' }}
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Upload state artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace-factory-state
+          path: |
+            workspace-factory/terraform.tfstate
+            workspace-factory/terraform.tfstate.backup
+            workspace-factory/tfplan
+          if-no-files-found: warn

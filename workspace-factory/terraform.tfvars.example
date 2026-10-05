@@ -1,0 +1,26 @@
+# Copy to terraform.tfvars (gitignored) and edit. Do NOT commit real usernames.
+# organization_names must match the 20 orgs org-factory created.
+organization_names = [
+  "bank-landing-01", "bank-landing-02", "bank-landing-03", "bank-landing-04",
+  "bank-landing-05", "bank-landing-06", "bank-landing-07", "bank-landing-08",
+  "bank-landing-09", "bank-landing-10", "bank-landing-11", "bank-landing-12",
+  "bank-landing-13", "bank-landing-14", "bank-landing-15", "bank-landing-16",
+  "bank-landing-17", "bank-landing-18", "bank-landing-19", "bank-landing-20",
+]
+
+# Optional: seed members per org team (HCP usernames, must already be org members).
+# Omit entirely to create teams empty for leads to fill via UI.
+# team_roster = {
+#   "bank-landing-01" = {
+#     dev      = ["alice-dev", "bob-dev"]
+#     security = ["carol-sec"]
+#   }
+# }
+
+# Optional: pin workspace Terraform version (default 1.9.8).
+# terraform_version = "1.9.8"
+
+# Optional: SSO IdP group mapping, "<org>:<team>" = "<sso-group-id>".
+# sso_team_ids = {
+#   "bank-landing-01:security" = "11111111-2222-3333-4444-555555555555"
+# }
