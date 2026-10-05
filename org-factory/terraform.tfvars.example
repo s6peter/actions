@@ -1,7 +1,7 @@
 # Copy to terraform.tfvars (gitignored) and edit names/emails.
 # Do NOT commit real emails/tokens. This file is an example only.
 organizations = {
-  org01 = { name = "bank-landing-01", email = "platform+01@example-bank.com" }
+  org01 = { name = "bank-landing-01", email = "peterogyedu@gmail.com" }
   org02 = { name = "bank-landing-02", email = "platform+02@example-bank.com" }
   org03 = { name = "bank-landing-03", email = "platform+03@example-bank.com" }
   org04 = { name = "bank-landing-04", email = "platform+04@example-bank.com" }
