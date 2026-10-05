@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (gitignored) and edit names/emails.
+# Do NOT commit real emails/tokens. This file is an example only.
+organizations = {
+  org01 = { name = "bank-landing-01", email = "platform+01@example-bank.com" }
+  org02 = { name = "bank-landing-02", email = "platform+02@example-bank.com" }
+  org03 = { name = "bank-landing-03", email = "platform+03@example-bank.com" }
+  org04 = { name = "bank-landing-04", email = "platform+04@example-bank.com" }
+  org05 = { name = "bank-landing-05", email = "platform+05@example-bank.com" }
+  org06 = { name = "bank-landing-06", email = "platform+06@example-bank.com" }
+  org07 = { name = "bank-landing-07", email = "platform+07@example-bank.com" }
+  org08 = { name = "bank-landing-08", email = "platform+08@example-bank.com" }
+  org09 = { name = "bank-landing-09", email = "platform+09@example-bank.com" }
+  org10 = { name = "bank-landing-10", email = "platform+10@example-bank.com" }
+  org11 = { name = "bank-landing-11", email = "platform+11@example-bank.com" }
+  org12 = { name = "bank-landing-12", email = "platform+12@example-bank.com" }
+  org13 = { name = "bank-landing-13", email = "platform+13@example-bank.com" }
+  org14 = { name = "bank-landing-14", email = "platform+14@example-bank.com" }
+  org15 = { name = "bank-landing-15", email = "platform+15@example-bank.com" }
+  org16 = { name = "bank-landing-16", email = "platform+16@example-bank.com" }
+  org17 = { name = "bank-landing-17", email = "platform+17@example-bank.com" }
+  org18 = { name = "bank-landing-18", email = "platform+18@example-bank.com" }
+  org19 = { name = "bank-landing-19", email = "platform+19@example-bank.com" }
+  org20 = { name = "bank-landing-20", email = "platform+20@example-bank.com" }
+}

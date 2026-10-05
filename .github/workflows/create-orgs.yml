@@ -1,0 +1,67 @@
+name: Create 20 HCP orgs
+
+on:
+  push:
+    branches: [main]
+    paths: ["org-factory/**", ".github/workflows/create-orgs.yml"]
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Set true to actually create the orgs (default is plan-only)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  orgs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: org-factory
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -diff
+
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+      # Needs terraform.tfvars in the job. Preferred: commit a sanitized
+      # terraform.tfvars.example and generate terraform.tfvars in CI from
+      # vars, or store the tfvars content as a secret. This example expects
+      # terraform.tfvars to be provided via secret ORG_TFVARS (optional).
+      - name: Provide tfvars from secret (optional)
+        if: ${{ secrets.ORG_TFVARS != '' }}
+        run: printf '%s' "${{ secrets.ORG_TFVARS }}" > terraform.tfvars
+
+      - name: Terraform plan
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply (manual gate)
+        if: ${{ github.event.inputs.apply == 'true' }}
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Upload state artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: org-factory-state
+          path: |
+            org-factory/terraform.tfstate
+            org-factory/terraform.tfstate.backup
+            org-factory/tfplan
+          if-no-files-found: warn
