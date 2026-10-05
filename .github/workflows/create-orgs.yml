@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths: ["org-factory/**", ".github/workflows/create-orgs.yml"]
+  pull_request:
+    paths: ["org-factory/**", ".github/workflows/create-orgs.yml"]
   workflow_dispatch:
     inputs:
       apply:

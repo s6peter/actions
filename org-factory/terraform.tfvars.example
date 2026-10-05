@@ -3,7 +3,7 @@
 organizations = {
   org01 = { name = "bank-landing-01", email = "petero@gmail.com" }
   org02 = { name = "bank-landing-02", email = "oyste@gmail.com" }
-  org03 = { name = "bank-landing-03", email = "oysten@outlook.com" }
+  org03 = { name = "bank-landing-03", email = "nanua@outlook.com" }
   org04 = { name = "bank-landing-04", email = "platform+04@example-bank.com" }
   org05 = { name = "bank-landing-05", email = "platform+05@example-bank.com" }
   org06 = { name = "bank-landing-06", email = "platform+06@example-bank.com" }
