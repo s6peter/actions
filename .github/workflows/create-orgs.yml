@@ -36,13 +36,21 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
-      # Needs terraform.tfvars in the job. Preferred: commit a sanitized
-      # terraform.tfvars.example and generate terraform.tfvars in CI from
-      # vars, or store the tfvars content as a secret. This example expects
-      # terraform.tfvars to be provided via secret ORG_TFVARS (optional).
-      - name: Provide tfvars from secret (optional)
-        if: ${{ secrets.ORG_TFVARS != '' }}
-        run: printf '%s' "${{ secrets.ORG_TFVARS }}" > terraform.tfvars
+      # terraform.tfvars is gitignored, so provide it in CI:
+      # if secret ORG_TFVARS exists use it, else fall back to the
+      # committed example (placeholder names/emails — plan-only safe).
+      # NOTE: secrets.* cannot be used in `if:` — read it via env instead.
+      - name: Provide tfvars (secret or example fallback)
+        env:
+          ORG_TFVARS: ${{ secrets.ORG_TFVARS }}
+        run: |
+          if [ -n "$ORG_TFVARS" ]; then
+            printf '%s' "$ORG_TFVARS" > terraform.tfvars
+            echo "using ORG_TFVARS secret"
+          else
+            cp terraform.tfvars.example terraform.tfvars
+            echo "using terraform.tfvars.example fallback"
+          fi
 
       - name: Terraform plan
         env:
