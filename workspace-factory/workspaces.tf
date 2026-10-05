@@ -36,10 +36,17 @@ resource "tfe_workspace" "this" {
 
   terraform_version = var.terraform_version
 
-  # Least privilege: no cross-workspace state reads unless explicitly granted later.
-  global_remote_state = false
-
   tag_names = ["env:${each.value.env}", "managed-by:workspace-factory"]
+}
+
+# Remote-state sharing stays OFF unless explicitly granted later.
+# (global_remote_state on tfe_workspace itself is deprecated — this settings
+# resource is the supported path.)
+resource "tfe_workspace_settings" "this" {
+  for_each = local.workspace_map
+
+  workspace_id        = tfe_workspace.this[each.key].id
+  global_remote_state = false
 }
 
 resource "tfe_team_access" "this" {
