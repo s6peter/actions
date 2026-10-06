@@ -1,11 +1,16 @@
 # Invite by email, bind by username. Scoped to managed orgs/teams only —
 # unbilled orgs have no teams, so any lookup there would fail by design.
+#
+# KEY DESIGN: memberships are keyed by ORG+EMAIL (one per human per org),
+# never by username. Usernames get corrected as people are identified, and a
+# username change must only touch team bindings — never destroy/recreate the
+# membership. Keying by username caused destroy/create churn on every
+# correction, and team binds fired mid-churn hit "already a member" / 400s.
 locals {
   roster_flat = flatten([
     for org, teams in var.roster : [
       for team, members in teams : [
         for m in members : {
-          key      = "${org}:${team}:${m.username}"
           org      = org
           team     = team
           email    = m.email
@@ -15,7 +20,13 @@ locals {
     ]
   ])
 
-  memberships = { for m in local.roster_flat : m.key => m }
+  person_keys = distinct([for m in local.roster_flat : "${m.org}|${m.email}"])
+  memberships = {
+    for k in local.person_keys : k => {
+      org   = split("|", k)[0]
+      email = split("|", k)[1]
+    }
+  }
 
   roster_team_keys = distinct([for m in local.roster_flat : "${m.org}:${m.team}"])
   roster_teams = {
