@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars (gitignored). Usernames are HCP usernames (exist after
+# signup/invite-accept); emails send the org invite. Do NOT commit real ones.
+# Only v2-01 (security/qa/dev) and v2-03 (qa/dev/production) are managed —
+# other orgs/teams are rejected by validation (no teams exist there).
+roster = {
+  # "bank-landing-v2-01" = {
+  #   security = [{ email = "sec-lead@example-bank.com", username = "sec-lead" }]
+  #   qa       = [{ email = "qa-dev@example-bank.com",  username = "qa-dev" }]
+  #   dev      = [{ email = "app-dev@example-bank.com", username = "app-dev" }]
+  # }
+  # "bank-landing-v2-03" = {
+  #   qa         = [{ email = "qa-dev@example-bank.com",  username = "qa-dev" }]
+  #   dev        = [{ email = "app-dev@example-bank.com", username = "app-dev" }]
+  #   production = [{ email = "rel-eng@example-bank.com", username = "rel-eng" }]
+  # }
+}
