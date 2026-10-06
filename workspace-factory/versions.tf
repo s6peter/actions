@@ -8,8 +8,15 @@ terraform {
     }
   }
 
-  # Separate state from org-factory on purpose: orgs first, teams/workspaces
-  # second. Same bootstrap style — local state, uploaded as a CI artifact.
+  # State lives in HCP: workspace `workspace-factory` in org `BankAZ-landing`
+  # (created once in the UI, CLI-driven, execution mode LOCAL). Every run
+  # shares it — no local-state drift like org-factory had in phase 1.
+  cloud {
+    organization = "BankAZ-landing"
+    workspaces {
+      name = "workspace-factory"
+    }
+  }
 }
 
 provider "tfe" {
