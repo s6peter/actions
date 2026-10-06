@@ -56,7 +56,8 @@ no future run ever reads back. Consequences we hit:
   Read secrets via `env:` and branch in shell. Real tfvars come from an
   optional `*_TFVARS` secret, with the committed `.example` as fallback.
 - With a `cloud {}` backend, `terraform init` authenticates too — it needs
-  `TFE_TOKEN` in its env, not just plan/apply.
+  `TFE_TOKEN` in its env, not just plan/apply. See "Why init needs its own
+  token" below — `env:` alone was NOT sufficient.
 - Push/PR = plan-only; `workflow_dispatch` + `apply=true` = the only apply.
   Speculative plans on PRs give reviewable diffs with zero blast radius.
 - `.gitignore` must cover `terraform.tfvars`, `terraform.tfstate*`,
@@ -67,15 +68,32 @@ no future run ever reads back. Consequences we hit:
   https://www.githubstatus.com before "fixing" the workflow.
 
 ## 6. Known limits (not automatable)
-- **Billing**: plan tier, payment, seats are UI/sales per org. Orgs land on
-  trial/Free; upgrade the ones needing Team/Governance (SSO, policy sets).
+- **Billing**: plan tier, payment, seats are UI/sales per org. Proven Oct 2026:
+  fresh orgs could create workspaces but `tfe_team` failed with "missing
+  entitlements to create teams" until an **Essentials** plan was enabled —
+  teams for the two billed orgs then created with zero code changes. Upgrade
+  per org in Plan & billing, or one enterprise agreement for all.
 - **VCS OAuth handshake** for VCS-driven workspaces needs a human click.
-- Deleted org names may be held briefly before reuse — expect possible
-  hiccups on immediate same-name recreation.
+- Deleted org names are held invisibly after delete ("already been taken"
+  with nothing in the UI). We renamed to `bank-landing-v2-*` instead of
+  waiting out the hold.
 
-## 7. Open follow-ups in this repo
+## 7. Why init needs its own token (two guards, one secret)
+Failure seen: `terraform init` with a `cloud {}` backend died with
+"Required token could not be found" while the log showed `TFE_TOKEN: ***`
+present in the step's environment. Cause: **two different consumers**:
+- the **tfe provider** (plan/apply API calls) reads `TFE_TOKEN` env — that
+  path always worked, including all of phase 1 with local state;
+- the **Terraform CLI** (`init` with a cloud backend) ignores env and only
+  reads CLI credentials (`~/.terraformrc`, what `terraform login` writes).
+Fix (4 lines, both workflows): `hashicorp/setup-terraform` with
+`cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}` writes the CLI
+credentials file from the same secret. Rule: `TFE_TOKEN` env feeds the
+provider; the `cli_config_credentials_token` input feeds init. Same secret,
+no new secrets.
+
+## 8. Open follow-ups in this repo
 - Lead wiring (membership + owners + admin workspace + alerts) was built but
   merged past — re-open as its own PR to `main`.
-- `workspace-factory` needs its state workspace + same `cloud {}` treatment.
 - Consider `tfe_project` per env, org-level `tfe_variable_set`, and
-  `tfe_policy_set` on prod (needs Governance tier — see billing).
+  `tfe_policy_set` on prod (needs Standard/Premium tier — see billing).
