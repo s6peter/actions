@@ -25,9 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Writes ~/.terraformrc CLI credentials: `terraform init` with a cloud{}
+      # backend ignores the TFE_TOKEN env var and only reads CLI credentials.
+      # (TFE_TOKEN env below is still needed — the tfe PROVIDER uses it.)
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.9.8"
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
 
       - name: Terraform fmt check
         run: terraform fmt -check -diff
