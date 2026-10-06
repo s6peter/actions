@@ -9,8 +9,8 @@ variable "organization_names" {
   type        = list(string)
 
   validation {
-    condition     = length(var.organization_names) == 20
-    error_message = "This example expects exactly the 20 org-factory organizations."
+    condition     = length(var.organization_names) >= 1
+    error_message = "Define at least one organization. Must match org-factory output names."
   }
 }
 
